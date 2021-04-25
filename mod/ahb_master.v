@@ -113,7 +113,7 @@ begin
     @(posedge hclk)
         begin
             #1;
-            ahb_addr  = 32'h0  ;
+            ahb_addr  = addr   ;
             ahb_write = 1'b0   ;
             tmp_trans = IDLE   ;
             ahb_size  = BYTE   ;
