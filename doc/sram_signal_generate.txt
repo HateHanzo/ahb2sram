@@ -7,11 +7,12 @@ ahb_rdata = sram_rdata
 ready_out <= write_vld_d1 & read_vld
 
 
-注意ready_in 和各slave模块的ready_out的关系，ready_in是各slave
-子模块的输入，也可以理解为gobal_ready，仲裁器将各slave子模块的
-ready_out收集起来作与逻辑送给各子模块的ready_in，可以理解为各
-子模块的ready_out的线与，也就是说只要有任意一个slave子模块将自身的
-ready_out拉低，那么总线上看到的gobal_ready就为低。但对于每个
-slave子模块本身而言，不拉低自身的ready_out的情况下，看到的ready_in
-也有可能是低的，因为有可能被别的slave拉低了，这种仲裁机制保证了
-总线只有在空闲时才能被访问，确保了数据和控制信号不会造成冲突。
+对于各子模块来看，hready信号有两个，一个是输入信号，该信号与ahb_decoder
+产生的HREADY相连，也可以称之为gobal_ready。每个子slave模块又有一个
+hreadyo_xxx输出信号。gobal_ready如何产生呢？各slave子模块的readyo_xxx信号
+都会送给一个mux，然后由ahb_decoder产生gobal_ready。一种常见的做法是将地址
+译码产生ahb_selx的逻辑和mux产生gobal_ready的逻辑放在同一个.v文件中。
+那么各子slave模块的hreadyo_xxx和gobal_ready是什么关系呢？可以理解为gobal_ready
+是所有子slave模块hreadyo_xxx的“线与”逻辑，对于每个子slave模块而言，其自身的
+hreadyo_xxx拉高的情况下，有可能会看到gobal_ready拉低，但是当其将hreadyo_xxx拉低
+时，那么gobal_ready一定是拉低的。
