@@ -16,3 +16,8 @@ hreadyo_xxx输出信号。gobal_ready如何产生呢？各slave子模块的ready
 是所有子slave模块hreadyo_xxx的“线与”逻辑，对于每个子slave模块而言，其自身的
 hreadyo_xxx拉高的情况下，有可能会看到gobal_ready拉低，但是当其将hreadyo_xxx拉低
 时，那么gobal_ready一定是拉低的。
+
+https://blog.csdn.net/qq_43365647/article/details/103674133
+https://blog.csdn.net/qq_43365647/article/details/103108500
+https://www.cnblogs.com/wt-seu/p/13289573.html
+http://bbs.eetop.cn/thread-263345-1-1.html
