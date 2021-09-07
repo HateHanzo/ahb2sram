@@ -1,0 +1,17 @@
+
+sram_cen <= write_vld | read_vld
+sram_wen <= ~write_vld_d1
+sram_addr = ((~ready_out) | write_vld_d1) ? ahb_addr_f1[10:2] ：ahb_addr[10:2]
+sram_wdata = ahb_wdata
+ahb_rdata = sram_rdata
+ready_out <= write_vld_d1 & read_vld
+
+
+注意ready_in 和各slave模块的ready_out的关系，ready_in是各slave
+子模块的输入，也可以理解为gobal_ready，仲裁器将各slave子模块的
+ready_out收集起来作与逻辑送给各子模块的ready_in，可以理解为各
+子模块的ready_out的线与，也就是说只要有任意一个slave子模块将自身的
+ready_out拉低，那么总线上看到的gobal_ready就为低。但对于每个
+slave子模块本身而言，不拉低自身的ready_out的情况下，看到的ready_in
+也有可能是低的，因为有可能被别的slave拉低了，这种仲裁机制保证了
+总线只有在空闲时才能被访问，确保了数据和控制信号不会造成冲突。
