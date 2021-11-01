@@ -1,20 +1,44 @@
 
 sram_cen <= write_vld | read_vld
-sram_wen <= ~write_vld_d1
 sram_addr = ((~ready_out) | write_vld_d1) ? ahb_addr_f1[10:2] ：ahb_addr[10:2]
 sram_wdata = ahb_wdata
 ahb_rdata = sram_rdata
 ready_out <= write_vld_d1 & read_vld
 
+//sram_wen logic generate
+//ahb_size_f1 only need 2bit
+
+tx_byte = ~ahb_size_f1[1] & ~ahb_size_f1[0]
+tx_half = ~ahb_size_f1[1] & ahb_size_f1[0]
+tx_word = ahb_size_f1[1] & ~ahb_size_f1[0]
+
+byte_at_0 = tx_byte  & ~ahb_addr_f1[1] & ~ahb_addr_f1[0]
+byte_at_1 = tx_byte  & ~ahb_addr_f1[1] & ahb_addr_f1[0]
+byte_at_2 = tx_byte  & ahb_addr_f1[1] & ~ahb_addr_f1[0]
+byte_at_3 = tx_byte  & ahb_addr_f1[1] & ahb_addr_f1[0]
+
+half_at_0 = tx_half & ~ahb_addr_f1[1] 
+half_at_2 = tx_half & ahb_addr_f1[1]
+
+word_at_0 = tx_word
+
+byte_sel0 = byte_at_0 | half_at_0 | word_at_0 
+byte_sel1 = byte_at_1 | half_at_0 | word_at_0 
+byte_sel2 = byte_at_2 | half_at_2 | word_at_0 
+byte_sel3 = byte_at_3 | half_at_3 | word_at_0 
+
+byte_wren0 = ~( byte_sel0 & write_vld_d1 )
+byte_wren1 = ~( byte_sel1 & write_vld_d1 )
+byte_wren2 = ~( byte_sel2 & write_vld_d1 )
+byte_wren3 = ~( byte_sel3 & write_vld_d1 )
 
 对于各子模块来看，hready信号有两个，一个是输入信号，该信号与ahb_decoder
 产生的HREADY相连，也可以称之为gobal_ready。每个子slave模块又有一个
 hreadyo_xxx输出信号。gobal_ready如何产生呢？各slave子模块的readyo_xxx信号
 都会送给一个mux，然后由ahb_decoder产生gobal_ready。一种常见的做法是将地址
 译码产生ahb_selx的逻辑和mux产生gobal_ready的逻辑放在同一个.v文件中。
-那么各子slave模块的hreadyo_xxx和gobal_ready是什么关系呢？对于每个子slave模块而言，
-其自身的hreadyo_xxx拉高的情况下，有可能会看到gobal_ready拉低，但是当其将hreadyo_xxx拉低
-时，那么gobal_ready一定是拉低的。
+那么各子slave模块的hreadyo_xxx和gobal_ready是什么关系呢？每个子slave模块的
+hreadyo_xxx和gobal_ready是有可能不一样的。
 
 
 https://blog.csdn.net/qq_43365647/article/details/103674133
