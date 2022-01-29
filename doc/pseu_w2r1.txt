@@ -6,11 +6,11 @@ else if(ahb_accs)
   ahb_addr_f1 <= ahb_addr[10:0]
   ahb_size_f1  <= ahb_size[1:0]
 
-sram_cen     <= ~(write_vld | read_vld)
-sram_addr   = ((~ready_out) | write_vld_d1) ? ahb_addr_f1[10:2] ：ahb_addr[10:2]
+sram_cen     = ~(write_vld_d1 | read_vld)
+sram_addr   = read_vld ? ahb_addr[10:2] ：ahb_addr_f1[10:2]
 sram_wdata = ahb_wdata
 ahb_rdata    = sram_rdata
-ahb_readyo  <= ~(write_vld_d1 & read_vld)
+ahb_readyo  = 1'b1 
 
 //sram_wen logic generate
 //ahb_size_f1 only need 2bit
