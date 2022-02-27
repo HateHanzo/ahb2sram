@@ -1,0 +1,50 @@
+ahb_accs = ahb_readyi & ahb_sel & ahb_trans[1]
+write_vld = ahb_accs &    ahb_write
+read_vld  = ahb_accs & ~ahb_write
+
+else if(ahb_accs)
+  ahb_addr_f1 <= ahb_addr[10:0]
+  ahb_size_f1  <= ahb_size[1:0]
+
+sram_cen     = ~(write_vld_d1 | read_vld)
+sram_addr   = read_vld ? ahb_addr[10:2] ：ahb_addr_f1[10:2]
+sram_wdata = ahb_wdata
+ahb_rdata    = sram_rdata
+ahb_readyo  = ~write_vld_d1
+
+//sram_wen logic generate
+//ahb_size_f1 only need 2bit
+
+tx_byte  = ~ahb_size_f1[1] & ~ahb_size_f1[0]
+tx_half   = ~ahb_size_f1[1] &   ahb_size_f1[0]
+tx_word =   ahb_size_f1[1] 
+
+byte_at_0 = tx_byte  & ~ahb_addr_f1[1] & ~ahb_addr_f1[0]
+byte_at_1 = tx_byte  & ~ahb_addr_f1[1] &   ahb_addr_f1[0]
+byte_at_2 = tx_byte  &   ahb_addr_f1[1] & ~ahb_addr_f1[0]
+byte_at_3 = tx_byte  &   ahb_addr_f1[1] &   ahb_addr_f1[0]
+
+half_at_0 = tx_half & ~ahb_addr_f1[1] 
+half_at_2 = tx_half &   ahb_addr_f1[1]
+
+word_at_0 = tx_word
+
+byte_sel0 = byte_at_0 | half_at_0 | word_at_0 
+byte_sel1 = byte_at_1 | half_at_0 | word_at_0 
+byte_sel2 = byte_at_2 | half_at_2 | word_at_0 
+byte_sel3 = byte_at_3 | half_at_2 | word_at_0 
+
+byte_wren0 = ~( byte_sel0 & write_vld_d1 )
+byte_wren1 = ~( byte_sel1 & write_vld_d1 )
+byte_wren2 = ~( byte_sel2 & write_vld_d1 )
+byte_wren3 = ~( byte_sel3 & write_vld_d1 )
+
+sram_wen = {{8{byte_wren3}},{8{byte_wren2}},{8{byte_wren1}},{8{byte_wren0}}}
+
+https://blog.csdn.net/qq_43365647/article/details/103674133
+https://blog.csdn.net/qq_43365647/article/details/103108500
+https://www.cnblogs.com/wt-seu/p/13289573.html
+http://bbs.eetop.cn/thread-263345-1-1.html
+
+必看
+http://www.360doc.com/content/17/1221/15/44422250_715098736.shtml
